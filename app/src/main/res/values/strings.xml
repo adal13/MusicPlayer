@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">Music Player</string>
+    <string name="allow_permission">Allow permission to excess media files</string>
+    <string name="home">Home</string>
+    <string name="album">Album</string>
+    <string name="favourite">Favourite</string>
+    <string name="dummy_song_title">O Saki Saki</string>
+</resources>
