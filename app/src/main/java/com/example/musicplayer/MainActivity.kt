@@ -1,20 +1,21 @@
 package com.example.musicplayer
 
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.media.MediaMetadataRetriever
 import android.os.Build
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.provider.MediaStore
-import android.util.Log
 import android.widget.Toast
-import androidx.fragment.app.Fragment
+import androidx.appcompat.app.AppCompatActivity
 import com.example.musicplayer.fragmnets.AlbumFragment
 import com.example.musicplayer.fragmnets.FavouriteFragment
 import com.example.musicplayer.fragmnets.HomeFragment
 import com.example.musicplayer.models.MusicFile
 import kotlinx.android.synthetic.main.activity_main.*
 import nl.joery.animatedbottombar.AnimatedBottomBar
+
 
 class MainActivity : AppCompatActivity() {
 
@@ -39,8 +40,8 @@ class MainActivity : AppCompatActivity() {
 
     private fun initTabs() {
 
-        var fragmentList = listOf(HomeFragment() , AlbumFragment() , FavouriteFragment())
-        supportFragmentManager.beginTransaction().replace(R.id.framelayout , fragmentList[1]).commit()
+        var fragmentList = listOf(HomeFragment(), AlbumFragment(), FavouriteFragment())
+        supportFragmentManager.beginTransaction().replace(R.id.framelayout, fragmentList[0]).commit()
         bottom_bar.setOnTabSelectListener(object : AnimatedBottomBar.OnTabSelectListener {
             override fun onTabSelected(
                 lastIndex: Int,
@@ -48,7 +49,7 @@ class MainActivity : AppCompatActivity() {
                 newIndex: Int,
                 newTab: AnimatedBottomBar.Tab
             ) {
-                supportFragmentManager.beginTransaction().replace(R.id.framelayout , fragmentList[newIndex]).commit()
+                supportFragmentManager.beginTransaction().replace(R.id.framelayout, fragmentList[newIndex]).commit()
             }
 
             override fun onTabReselected(index: Int, tab: AnimatedBottomBar.Tab) {
@@ -59,7 +60,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun askForPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            requestPermissions(arrayOf(android.Manifest.permission.WRITE_EXTERNAL_STORAGE), REQUEST_CODE)
+            requestPermissions(arrayOf(android.Manifest.permission.WRITE_EXTERNAL_STORAGE, android.Manifest.permission.READ_EXTERNAL_STORAGE), REQUEST_CODE)
         }
     }
 
@@ -76,14 +77,16 @@ class MainActivity : AppCompatActivity() {
 
     private fun checkForPermission(): Boolean {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
+            checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED &&
+                    checkSelfPermission(android.Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
+
         } else {
             true
         }
     }
 
     private fun getAllMusicFiles() {
-        var musicList = mutableListOf<MusicFile>()
+        var musicList = ArrayList<MusicFile>()
         val uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
         val projections = arrayOf(
             MediaStore.Audio.Media.TITLE,
@@ -102,8 +105,6 @@ class MainActivity : AppCompatActivity() {
                 var artist = cursor.getString(3)
                 var data = cursor.getString(4)
 
-                Log.e(TAG, "getAllMusicFiles: $data")
-
                 var musicFile = MusicFile(title, album, duration, artist, data, getThumbnail(data))
                 musicList.add(musicFile)
             }
@@ -113,16 +114,28 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun getThumbnail(uri: String): Bitmap? {
+        val mmr = MediaMetadataRetriever()
+        val rawArt: ByteArray?
+        var art: Bitmap? = null
+        val bfo = BitmapFactory.Options()
 
-    private fun getThumbnail(uri: String): ByteArray? {
         try {
-            var retriever = MediaMetadataRetriever()
-            retriever.setDataSource(uri)
-            var art = retriever.embeddedPicture
-            retriever.release()
+            mmr.setDataSource(uri)
+            rawArt = mmr.embeddedPicture
+            if (null != rawArt) art = BitmapFactory.decodeByteArray(rawArt, 0, rawArt.size, bfo)
             return art
         } catch (e: Exception) {
-            return ByteArray(0)
+            return art
         }
     }
+
+
+//    private fun getRemovedTitleUri(uri: String): String {
+//        return uri.substring(0 , uri.lastIndexOf('/'))
+//    }
+//
+//    private fun getMimeType(uri : String) : String{
+//        return uri.substring(uri.lastIndexOf('.'))
+//    }
 }

@@ -8,7 +8,8 @@ class AppController : Application() {
 
     companion object {
         lateinit var context : Context
-        var musicList = mutableListOf<MusicFile>()
+        var musicList = ArrayList<MusicFile>()
+        var currentListIndex = -1
     }
 
     override fun onCreate() {
