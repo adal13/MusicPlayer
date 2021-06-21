@@ -8,13 +8,12 @@
     tools:context=".PlayerActivity">
 
 
-
     <com.jgabrielfreitas.core.BlurImageView
         android:id="@+id/blur_image"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scaleType="centerCrop"
-        android:src="@drawable/poster"
+        android:background="@drawable/poster"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -66,6 +65,7 @@
         android:paddingHorizontal="12dp">
 
         <ImageView
+            android:id="@+id/back_button_iv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:tint="@android:color/white"

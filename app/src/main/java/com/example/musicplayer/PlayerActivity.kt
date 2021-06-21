@@ -16,12 +16,15 @@ class PlayerActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_player)
         blurImage()
+        back_button_iv.setOnClickListener {
+            onBackPressed()
+        }
     }
 
     private fun blurImage() {
         var bitmapImage = AppController.musicList.get(AppController.currentListIndex).thumbnail
         blur_image.setImageBitmap(bitmapImage)
         Glide.with(this).asBitmap().load(bitmapImage).into(music_poster)
-        blur_image.setBlur(2)
+        blur_image.setBlur(1)
     }
 }
