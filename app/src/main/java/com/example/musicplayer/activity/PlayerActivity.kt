@@ -17,6 +17,8 @@ import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
 import android.support.v4.media.session.MediaSessionCompat
+import android.view.Window
+import android.view.WindowManager
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import android.widget.ImageView
@@ -358,6 +360,7 @@ class PlayerActivity : AppCompatActivity(), PlayerInterface, ServiceConnection {
     override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
         var binder: MusicService.MyBinder = service as MusicService.MyBinder
         musicService = binder.getService()
+        musicService.setPlayerInterface(this)
         initalize()
     }
 

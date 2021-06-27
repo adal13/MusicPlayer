@@ -6,9 +6,9 @@ import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Binder
 import android.os.IBinder
-import android.provider.Settings
-import android.util.Log
+import android.widget.Toast
 import com.example.musicplayer.AppController
+import com.example.musicplayer.`interface`.PlayerInterface
 
 import com.example.musicplayer.models.MusicFile
 
@@ -19,7 +19,8 @@ class MusicService : Service() {
     var binder = MyBinder()
     var mediaPlayer: MediaPlayer? = MediaPlayer()
     var musicList = ArrayList<MusicFile>()
-    lateinit var uri : Uri
+    lateinit var uri: Uri
+    private lateinit var playerInterface : PlayerInterface
 
     inner class MyBinder : Binder() {
         fun getService(): MusicService {
@@ -32,7 +33,27 @@ class MusicService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        var action = intent?.action
+        if (action != null) {
+            handleAction(action)
+        }
         return START_STICKY
+    }
+
+    private fun handleAction(action: String) {
+        if (playerInterface != null) {
+            when (action) {
+                AppController.ACTION_NEXT -> {
+                    playerInterface.nextSong()
+                }
+                AppController.ACTION_PREVIOUS -> {
+                    playerInterface.previousSong()
+                }
+                AppController.ACTION_PLAY_PAUSE -> {
+                    playerInterface.musicPlayPause()
+                }
+            }
+        }
     }
 
     override fun onCreate() {
@@ -40,7 +61,7 @@ class MusicService : Service() {
         musicList = AppController.musicList
     }
 
-    fun createMediaPlayer(position : Int){
-        mediaPlayer = MediaPlayer.create(baseContext , uri)
+    fun setPlayerInterface(playerInterface : PlayerInterface){
+        this.playerInterface = playerInterface
     }
 }
