@@ -1,16 +1,16 @@
-package com.example.musicplayer
+package com.example.musicplayer.activity
 
+import android.content.ComponentName
 import android.content.Context
+import android.content.Intent
+import android.content.ServiceConnection
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.PorterDuff
-import android.icu.text.SimpleDateFormat
-import android.icu.util.TimeZone
 import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Bundle
-import android.os.Handler
-import android.util.Log
+import android.os.IBinder
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import android.widget.ImageView
@@ -18,16 +18,23 @@ import android.widget.SeekBar
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.bumptech.glide.Glide
+import com.example.musicplayer.AppController
+import com.example.musicplayer.R
+import com.example.musicplayer.`interface`.PlayerInterface
+import com.example.musicplayer.services.MusicService
 import kotlinx.android.synthetic.main.activity_player.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-class PlayerActivity : AppCompatActivity() {
+class PlayerActivity : AppCompatActivity(), PlayerInterface, ServiceConnection {
 
     private val TAG = "PlayerActivity"
-    var mediaPlayer: MediaPlayer? = null
+
+    //    var mediaPlayer: MediaPlayer? = null
+    lateinit var musicService: MusicService
+
     var isPlaying = false
     var isShuffle = false
     var isRepeat = false
@@ -35,8 +42,13 @@ class PlayerActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_player)
-        initalize()
+        bindService()
         clicks()
+    }
+
+    private fun bindService() {
+        var intent = Intent(this, MusicService::class.java)
+        bindService(intent, this, BIND_AUTO_CREATE)
     }
 
     private fun initalize() {
@@ -66,11 +78,7 @@ class PlayerActivity : AppCompatActivity() {
             setRepeat()
         }
         music_play_pause_iv.setOnClickListener {
-            isPlaying = !isPlaying
-            if (isPlaying)
-                resumeMusic()
-            else
-                pauseMusic()
+            musicPlayPause()
         }
     }
 
@@ -99,7 +107,7 @@ class PlayerActivity : AppCompatActivity() {
         initalize()
     }
 
-    private fun nextSong() {
+    override fun nextSong() {
         var position = AppController.currentListIndex
         position++
         if (AppController.musicList.size > position) {
@@ -110,7 +118,7 @@ class PlayerActivity : AppCompatActivity() {
         }
     }
 
-    private fun previousSong() {
+    override fun previousSong() {
         var position = AppController.currentListIndex
         position--
         if (0 <= position) {
@@ -119,6 +127,14 @@ class PlayerActivity : AppCompatActivity() {
         } else {
             Toast.makeText(this, resources.getString(R.string.first_song), Toast.LENGTH_SHORT).show()
         }
+    }
+
+    override fun musicPlayPause() {
+        isPlaying = !isPlaying
+        if (isPlaying)
+            resumeMusic()
+        else
+            pauseMusic()
     }
 
     private fun blurImage() {
@@ -143,17 +159,17 @@ class PlayerActivity : AppCompatActivity() {
         isPlaying = true
         music_play_pause_iv.setImageDrawable(resources.getDrawable(R.drawable.ic_pause))
         var path = Uri.parse(AppController.musicList.get(AppController.currentListIndex).data)
-        if (mediaPlayer != null) {
-            mediaPlayer?.stop()
-            mediaPlayer?.release()
-            mediaPlayer = null;
-            mediaPlayer = MediaPlayer.create(this, path)
-            mediaPlayer?.start()
+        if (musicService.mediaPlayer != null) {
+            musicService.mediaPlayer?.stop()
+            musicService.mediaPlayer?.release()
+            musicService.mediaPlayer = null;
+            musicService.mediaPlayer = MediaPlayer.create(this, path)
+            musicService.mediaPlayer?.start()
         } else {
-            mediaPlayer = MediaPlayer.create(this, path)
-            mediaPlayer?.start()
+            musicService.mediaPlayer = MediaPlayer.create(this, path)
+            musicService.mediaPlayer?.start()
         }
-        mediaPlayer?.setOnCompletionListener {
+        musicService.mediaPlayer?.setOnCompletionListener {
             if (isRepeat) {
                 repeatSong()
                 return@setOnCompletionListener
@@ -170,13 +186,13 @@ class PlayerActivity : AppCompatActivity() {
     private fun setSeekBar() {
         seekbar.progressDrawable.setColorFilter(Color.parseColor("#1e3c7c"), PorterDuff.Mode.MULTIPLY)
         seekbar.thumb.setColorFilter(Color.parseColor("#ffffff"), PorterDuff.Mode.SRC_ATOP)
-        seekbar.max = mediaPlayer?.duration!!
-        total_duration.text = convertSecondsToSsMm(mediaPlayer?.duration!!)
+        seekbar.max = musicService.mediaPlayer?.duration!!
+        total_duration.text = convertSecondsToSsMm(musicService.mediaPlayer?.duration!!)
 
         seekbar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                if (mediaPlayer != null && fromUser) {
-                    mediaPlayer?.seekTo(progress)
+                if (musicService.mediaPlayer != null && fromUser) {
+                    musicService.mediaPlayer?.seekTo(progress)
                 }
             }
 
@@ -196,10 +212,10 @@ class PlayerActivity : AppCompatActivity() {
     }
 
     suspend fun updateSeekBar() {
-        while (mediaPlayer != null) {
+        while (musicService.mediaPlayer != null) {
             delay(1000L)
-            seekbar.setProgress(mediaPlayer?.currentPosition!!)
-            current_duration.text = convertSecondsToSsMm(mediaPlayer?.currentPosition!!)
+            seekbar.setProgress(musicService.mediaPlayer?.currentPosition!!)
+            current_duration.text = convertSecondsToSsMm(musicService.mediaPlayer?.currentPosition!!)
         }
     }
 
@@ -212,29 +228,30 @@ class PlayerActivity : AppCompatActivity() {
     private fun resumeMusic() {
         isPlaying = true
         music_play_pause_iv.setImageDrawable(resources.getDrawable(R.drawable.ic_pause))
-        if (mediaPlayer != null) {
-            mediaPlayer?.start()
+        if (musicService.mediaPlayer != null) {
+            musicService.mediaPlayer?.start()
         }
     }
 
     private fun pauseMusic() {
         isPlaying = false
         music_play_pause_iv.setImageDrawable(resources.getDrawable(R.drawable.ic_play))
-        if (mediaPlayer != null) {
-            mediaPlayer?.pause()
+        if (musicService.mediaPlayer != null) {
+            musicService.mediaPlayer?.pause()
         }
     }
 
     private fun stopMusic() {
-        if (mediaPlayer != null) {
-            mediaPlayer?.stop();
-            mediaPlayer?.release()
+        if (musicService.mediaPlayer != null) {
+            musicService.mediaPlayer?.stop();
+            musicService.mediaPlayer?.release()
         }
     }
 
     override fun onDestroy() {
         super.onDestroy()
         stopMusic()
+        unbindService(this)
     }
 
     fun imageAnimation(context: Context, imageView: ImageView, bitmap: Bitmap) {
@@ -273,5 +290,15 @@ class PlayerActivity : AppCompatActivity() {
         })
 
         imageView.startAnimation(animOut)
+    }
+
+    override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
+        var binder: MusicService.MyBinder = service as MusicService.MyBinder
+        musicService = binder.getService()
+        initalize()
+    }
+
+    override fun onServiceDisconnected(name: ComponentName?) {
+
     }
 }

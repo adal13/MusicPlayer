@@ -2,15 +2,13 @@ package com.example.musicplayer.adapters
 
 import android.content.Context
 import android.content.Intent
-import android.opengl.Visibility
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.musicplayer.AppController
-import com.example.musicplayer.PlayerActivity
+import com.example.musicplayer.activity.PlayerActivity
 import com.example.musicplayer.R
 import com.example.musicplayer.models.MusicFile
 import kotlinx.android.synthetic.main.music_list_item.view.*

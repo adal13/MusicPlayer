@@ -5,7 +5,7 @@
     android:id="@+id/rootview"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".PlayerActivity">
+    tools:context=".activity.PlayerActivity">
 
     <com.jgabrielfreitas.core.BlurImageView
         android:id="@+id/blur_image"
