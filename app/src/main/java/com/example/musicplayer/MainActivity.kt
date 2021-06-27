@@ -116,28 +116,22 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun getThumbnail(uri: String): Bitmap? {
-        val mmr = MediaMetadataRetriever()
-        val rawArt: ByteArray?
-        var art: Bitmap? = null
-        val bfo = BitmapFactory.Options()
+    companion object {
+        fun getThumbnail(uri: String): Bitmap? {
+            val mmr = MediaMetadataRetriever()
+            val rawArt: ByteArray?
+            var art: Bitmap? = null
+            val bfo = BitmapFactory.Options()
 
-        try {
-            mmr.setDataSource(uri)
-            rawArt = mmr.embeddedPicture
-            if (null != rawArt) art = BitmapFactory.decodeByteArray(rawArt, 0, rawArt.size, bfo)
-            return art
-        } catch (e: Exception) {
-            return art
+            try {
+                mmr.setDataSource(uri)
+                rawArt = mmr.embeddedPicture
+                if (null != rawArt) art = BitmapFactory.decodeByteArray(rawArt, 0, rawArt.size, bfo)
+                return art
+            } catch (e: Exception) {
+                return art
+            }
         }
     }
 
-
-//    private fun getRemovedTitleUri(uri: String): String {
-//        return uri.substring(0 , uri.lastIndexOf('/'))
-//    }
-//
-//    private fun getMimeType(uri : String) : String{
-//        return uri.substring(uri.lastIndexOf('.'))
-//    }
 }

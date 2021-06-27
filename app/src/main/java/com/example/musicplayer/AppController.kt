@@ -9,15 +9,22 @@ import com.example.musicplayer.models.MusicFile
 
 class AppController : Application() {
 
-    private var channelId = "com.monik.musicplayer"
-    private var channelName = "Music Player Channel"
+
 
     companion object {
-        lateinit var context : Context
+
+        var channelId = "com.monik.musicplayer"
+        var channelName = "Music Player Channel"
+
+        var ACTION_PREVIOUS = "ACTION_PREVIOUS"
+        var ACTION_PLAY_PAUSE = "ACTION_PLAY_PAUSE"
+        var ACTION_NEXT = "ACTION_NEXT"
+
+        lateinit var context: Context
         var musicList = ArrayList<MusicFile>()
         var currentListIndex = -1
 
-        fun setRandomNumber(){
+        fun setRandomNumber() {
             val count = musicList.size
             val randomNumber = (0..count).random()
             currentListIndex = randomNumber
@@ -27,16 +34,5 @@ class AppController : Application() {
     override fun onCreate() {
         super.onCreate()
         context = this
-        createNotification()
-    }
-
-    private fun createNotification() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            var notificationChannel = NotificationChannel(channelId , channelName , NotificationManager.IMPORTANCE_HIGH)
-            notificationChannel.description = "this channel is used to play music in background"
-
-            var notificationManager = getSystemService(NotificationManager::class.java)
-            notificationManager.createNotificationChannel(notificationChannel)
-        }
     }
 }
