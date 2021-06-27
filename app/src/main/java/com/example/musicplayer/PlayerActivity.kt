@@ -1,5 +1,7 @@
 package com.example.musicplayer
 
+import android.content.Context
+import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.PorterDuff
 import android.icu.text.SimpleDateFormat
@@ -9,7 +11,11 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.util.Log
+import android.view.animation.Animation
+import android.view.animation.AnimationUtils
+import android.widget.ImageView
 import android.widget.SeekBar
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.bumptech.glide.Glide
 import kotlinx.android.synthetic.main.activity_player.*
@@ -18,13 +24,13 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-
 class PlayerActivity : AppCompatActivity() {
 
     private val TAG = "PlayerActivity"
     var mediaPlayer: MediaPlayer? = null
     var isPlaying = false
-    val handler = Handler()
+    var isShuffle = false
+    var isRepeat = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,6 +57,14 @@ class PlayerActivity : AppCompatActivity() {
         back_button_iv.setOnClickListener {
             onBackPressed()
         }
+        shuffle_iv.setOnClickListener {
+            isShuffle = !isShuffle
+            setShuffle()
+        }
+        repeat_iv.setOnClickListener {
+            isRepeat = !isRepeat
+            setRepeat()
+        }
         music_play_pause_iv.setOnClickListener {
             isPlaying = !isPlaying
             if (isPlaying)
@@ -60,12 +74,39 @@ class PlayerActivity : AppCompatActivity() {
         }
     }
 
+    private fun setRepeat() {
+        if (isRepeat) {
+            repeat_iv.setColorFilter(resources.getColor(R.color.bay_of_many), PorterDuff.Mode.SRC_IN);
+        } else {
+            repeat_iv.setColorFilter(resources.getColor(R.color.white), PorterDuff.Mode.SRC_IN);
+        }
+    }
+
+    private fun setShuffle() {
+        if (isShuffle) {
+            shuffle_iv.setColorFilter(resources.getColor(R.color.bay_of_many), PorterDuff.Mode.SRC_IN);
+        } else {
+            shuffle_iv.setColorFilter(resources.getColor(R.color.white), PorterDuff.Mode.SRC_IN);
+        }
+    }
+
+    private fun shuffleMusic() {
+        AppController.setRandomNumber()
+        initalize()
+    }
+
+    private fun repeatSong() {
+        initalize()
+    }
+
     private fun nextSong() {
         var position = AppController.currentListIndex
         position++
         if (AppController.musicList.size > position) {
             AppController.currentListIndex++
             initalize()
+        } else {
+            Toast.makeText(this, resources.getString(R.string.last_song), Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -75,14 +116,19 @@ class PlayerActivity : AppCompatActivity() {
         if (0 <= position) {
             AppController.currentListIndex--
             initalize()
+        } else {
+            Toast.makeText(this, resources.getString(R.string.first_song), Toast.LENGTH_SHORT).show()
         }
     }
 
     private fun blurImage() {
         var bitmapImage = AppController.musicList.get(AppController.currentListIndex).thumbnail
-        blur_image.setImageBitmap(bitmapImage)
-        Glide.with(this).asBitmap().load(bitmapImage).into(music_poster)
-        blur_image.setBlur(1)
+        if (bitmapImage != null) {
+            imageAnimation(this, music_poster, bitmapImage!!)
+            blur_image.setImageBitmap(bitmapImage)
+        } else {
+            music_poster.setImageResource(R.drawable.ic_launcher_music)
+        }
     }
 
     private fun setTitleAndArtistName() {
@@ -98,7 +144,6 @@ class PlayerActivity : AppCompatActivity() {
         music_play_pause_iv.setImageDrawable(resources.getDrawable(R.drawable.ic_pause))
         var path = Uri.parse(AppController.musicList.get(AppController.currentListIndex).data)
         if (mediaPlayer != null) {
-            Log.e(TAG, "playMusic: mediaPlayer != null")
             mediaPlayer?.stop()
             mediaPlayer?.release()
             mediaPlayer = null;
@@ -109,9 +154,18 @@ class PlayerActivity : AppCompatActivity() {
             mediaPlayer?.start()
         }
         mediaPlayer?.setOnCompletionListener {
+            if (isRepeat) {
+                repeatSong()
+                return@setOnCompletionListener
+            }
+            if (isShuffle) {
+                shuffleMusic()
+                return@setOnCompletionListener
+            }
             nextSong()
         }
     }
+
 
     private fun setSeekBar() {
         seekbar.progressDrawable.setColorFilter(Color.parseColor("#1e3c7c"), PorterDuff.Mode.MULTIPLY)
@@ -146,14 +200,13 @@ class PlayerActivity : AppCompatActivity() {
             delay(1000L)
             seekbar.setProgress(mediaPlayer?.currentPosition!!)
             current_duration.text = convertSecondsToSsMm(mediaPlayer?.currentPosition!!)
-
         }
     }
 
     fun convertSecondsToSsMm(seconds: Int): String? {
         val s = (seconds / 1000) % 60
         val m = (seconds / 1000) / 60
-        return String.format("%02d:%02d",  m, s)
+        return String.format("%02d:%02d", m, s)
     }
 
     private fun resumeMusic() {
@@ -184,5 +237,41 @@ class PlayerActivity : AppCompatActivity() {
         stopMusic()
     }
 
+    fun imageAnimation(context: Context, imageView: ImageView, bitmap: Bitmap) {
 
+        var animOut = AnimationUtils.loadAnimation(context, android.R.anim.fade_out)
+        var animIn = AnimationUtils.loadAnimation(context, android.R.anim.fade_in)
+
+        animOut.setAnimationListener(object : Animation.AnimationListener {
+            override fun onAnimationStart(animation: Animation?) {
+
+            }
+
+            override fun onAnimationEnd(animation: Animation?) {
+                Glide.with(context).load(bitmap).into(imageView)
+                animIn.setAnimationListener(object : Animation.AnimationListener {
+                    override fun onAnimationStart(animation: Animation?) {
+
+                    }
+
+                    override fun onAnimationEnd(animation: Animation?) {
+
+                    }
+
+                    override fun onAnimationRepeat(animation: Animation?) {
+
+                    }
+
+                })
+                imageView.startAnimation(animIn)
+            }
+
+            override fun onAnimationRepeat(animation: Animation?) {
+
+            }
+
+        })
+
+        imageView.startAnimation(animOut)
+    }
 }

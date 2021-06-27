@@ -151,7 +151,7 @@
                     android:layout_height="match_parent" />
 
                 <ImageView
-                    android:id="@+id/loop_iv"
+                    android:id="@+id/repeat_iv"
                     android:layout_width="24dp"
                     android:layout_height="24dp"
                     android:src="@drawable/ic_repeat"

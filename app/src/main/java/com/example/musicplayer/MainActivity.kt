@@ -94,6 +94,7 @@ class MainActivity : AppCompatActivity() {
             MediaStore.Audio.Media.DURATION,
             MediaStore.Audio.Media.ARTIST,
             MediaStore.Audio.Media.DATA,
+            MediaStore.Audio.Media._ID,
         )
         var cursor = contentResolver.query(uri, projections, null, null, null)
 
@@ -104,8 +105,9 @@ class MainActivity : AppCompatActivity() {
                 var duration = cursor.getString(2)
                 var artist = cursor.getString(3)
                 var data = cursor.getString(4)
+                var id = cursor.getString(5)
 
-                var musicFile = MusicFile(title, album, duration, artist, data, getThumbnail(data))
+                var musicFile = MusicFile(title, album, duration, artist, data, getThumbnail(data) , id)
                 musicList.add(musicFile)
             }
             AppController.musicList = musicList

@@ -29,16 +29,12 @@ class MusicAdapter(private val musicList: ArrayList<MusicFile>, private val cont
 
         holder.title.text = singleMusicFile.title
 
-        if (singleMusicFile.thumbnail != null) {
-            Log.e(TAG, "onBindViewHolder: ${singleMusicFile.title}" )
-            holder.musicArt.visibility = View.VISIBLE
+        if (singleMusicFile.thumbnail != null)
             Glide.with(context!!).asBitmap().load(singleMusicFile.thumbnail!!).into(holder.musicArt)
-        }
-
 
         holder.itemView.setOnClickListener {
             AppController.currentListIndex = position
-            context?.startActivity(Intent(context , PlayerActivity::class.java))
+            context?.startActivity(Intent(context, PlayerActivity::class.java))
         }
     }
 

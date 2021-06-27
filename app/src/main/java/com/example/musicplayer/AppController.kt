@@ -10,6 +10,12 @@ class AppController : Application() {
         lateinit var context : Context
         var musicList = ArrayList<MusicFile>()
         var currentListIndex = -1
+
+        fun setRandomNumber(){
+            val count = musicList.size
+            val randomNumber = (0..count).random()
+            currentListIndex = randomNumber
+        }
     }
 
     override fun onCreate() {
