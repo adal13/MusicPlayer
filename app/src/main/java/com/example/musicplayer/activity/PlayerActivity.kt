@@ -17,8 +17,6 @@ import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
 import android.support.v4.media.session.MediaSessionCompat
-import android.view.Window
-import android.view.WindowManager
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import android.widget.ImageView
@@ -31,8 +29,10 @@ import com.example.musicplayer.AppController
 import com.example.musicplayer.AppController.Companion.channelId
 import com.example.musicplayer.MainActivity.Companion.getThumbnail
 import com.example.musicplayer.R
-import com.example.musicplayer.`interface`.PlayerInterface
+import com.example.musicplayer.interfaces.PlayerInterface
 import com.example.musicplayer.broadcast.NotificationReceiver
+import com.example.musicplayer.database.FavSongDatabase
+import com.example.musicplayer.database.FavSongModel
 import com.example.musicplayer.services.MusicService
 import kotlinx.android.synthetic.main.activity_player.*
 import kotlinx.coroutines.Dispatchers
@@ -50,6 +50,8 @@ class PlayerActivity : AppCompatActivity(), PlayerInterface, ServiceConnection {
     var isPlaying = false
     var isShuffle = false
     var isRepeat = false
+    var isFavourite = false
+    var favouriteSongId = -1
 
     lateinit var mediaSessionCompat: MediaSessionCompat
 
@@ -66,14 +68,14 @@ class PlayerActivity : AppCompatActivity(), PlayerInterface, ServiceConnection {
         bindService(intent, this, BIND_AUTO_CREATE)
     }
 
-    private fun initalize() {
+    private fun initialize() {
         blurImage()
         setTitleAndArtistName()
         playMusic()
         setSeekBar()
         showNotification(R.drawable.ic_pause)
+        checkIfFavourite()
     }
-
 
     private fun clicks() {
         fast_rewind_iv.setOnClickListener {
@@ -96,7 +98,12 @@ class PlayerActivity : AppCompatActivity(), PlayerInterface, ServiceConnection {
         music_play_pause_iv.setOnClickListener {
             musicPlayPause()
         }
+        favourite_iv.setOnClickListener {
+            favUnfavSong()
+        }
     }
+
+
 
     private fun setRepeat() {
         if (isRepeat) {
@@ -116,11 +123,11 @@ class PlayerActivity : AppCompatActivity(), PlayerInterface, ServiceConnection {
 
     private fun shuffleMusic() {
         AppController.setRandomNumber()
-        initalize()
+        initialize()
     }
 
     private fun repeatSong() {
-        initalize()
+        initialize()
     }
 
     override fun nextSong() {
@@ -128,7 +135,7 @@ class PlayerActivity : AppCompatActivity(), PlayerInterface, ServiceConnection {
         position++
         if (AppController.musicList.size > position) {
             AppController.currentListIndex++
-            initalize()
+            initialize()
         } else {
             Toast.makeText(this, resources.getString(R.string.last_song), Toast.LENGTH_SHORT).show()
         }
@@ -139,7 +146,7 @@ class PlayerActivity : AppCompatActivity(), PlayerInterface, ServiceConnection {
         position--
         if (0 <= position) {
             AppController.currentListIndex--
-            initalize()
+            initialize()
         } else {
             Toast.makeText(this, resources.getString(R.string.first_song), Toast.LENGTH_SHORT).show()
         }
@@ -320,6 +327,42 @@ class PlayerActivity : AppCompatActivity(), PlayerInterface, ServiceConnection {
         }
     }
 
+    private fun favUnfavSong() {
+        var songId = AppController.musicList.get(AppController.currentListIndex).id
+        if (isFavourite) {
+            FavSongDatabase.getInstance(baseContext).songDao().delete(FavSongModel(songId = songId , id = favouriteSongId))
+            favourite_iv.setImageResource(R.drawable.ic_favourite_outline)
+            Toast.makeText(this , "removed from favourite" , Toast.LENGTH_SHORT)
+        }else {
+            FavSongDatabase.getInstance(baseContext).songDao().insert(FavSongModel(songId = songId , id = 0))
+            favourite_iv.setImageResource(R.drawable.ic_favourite)
+            Toast.makeText(this , "added to favourite" , Toast.LENGTH_SHORT)
+        }
+    }
+
+    private fun checkIfFavourite() {
+        var database = FavSongDatabase.getInstance(baseContext)
+        var list = database.songDao().getAll()
+        isFavourite = checkForCurrentSong(list)
+        if (isFavourite) {
+            favourite_iv.setImageResource(R.drawable.ic_favourite)
+        } else {
+            favourite_iv.setImageResource(R.drawable.ic_favourite_outline)
+        }
+    }
+
+    private fun checkForCurrentSong(list: List<FavSongModel>): Boolean {
+        var isFound = false;
+        var currentId = AppController.musicList.get(AppController.currentListIndex).id
+        list.forEach {
+            if (it.songId == currentId) {
+                isFound = true
+                favouriteSongId = it.id
+            }
+        }
+        return isFound
+    }
+
     fun showNotification(playPauseImage: Int) {
 
         createNotificationChannel()
@@ -357,11 +400,12 @@ class PlayerActivity : AppCompatActivity(), PlayerInterface, ServiceConnection {
         notificationManager.notify(0, notificaiton)
     }
 
+
     override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
         var binder: MusicService.MyBinder = service as MusicService.MyBinder
         musicService = binder.getService()
         musicService.setPlayerInterface(this)
-        initalize()
+        initialize()
     }
 
     override fun onServiceDisconnected(name: ComponentName?) {

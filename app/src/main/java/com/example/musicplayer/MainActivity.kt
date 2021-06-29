@@ -111,6 +111,7 @@ class MainActivity : AppCompatActivity() {
                 musicList.add(musicFile)
             }
             AppController.musicList = musicList
+            AppController.setMusicListForHome()
         } else {
             println("cursor is null")
         }

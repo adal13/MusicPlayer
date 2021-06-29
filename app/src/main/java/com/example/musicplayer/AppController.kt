@@ -10,7 +10,6 @@ import com.example.musicplayer.models.MusicFile
 class AppController : Application() {
 
 
-
     companion object {
 
         var channelId = "com.monik.musicplayer"
@@ -22,12 +21,21 @@ class AppController : Application() {
 
         lateinit var context: Context
         var musicList = ArrayList<MusicFile>()
+        var backUpList = ArrayList<MusicFile>()
         var currentListIndex = -1
 
         fun setRandomNumber() {
             val count = musicList.size
             val randomNumber = (0..count).random()
             currentListIndex = randomNumber
+        }
+
+        fun setMusicListForHome() {
+            backUpList = musicList
+        }
+
+        fun setMusicForFavourite(tempList: ArrayList<MusicFile>) {
+            musicList = tempList
         }
     }
 

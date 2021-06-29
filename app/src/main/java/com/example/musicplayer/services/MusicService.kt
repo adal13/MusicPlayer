@@ -6,9 +6,8 @@ import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Binder
 import android.os.IBinder
-import android.widget.Toast
 import com.example.musicplayer.AppController
-import com.example.musicplayer.`interface`.PlayerInterface
+import com.example.musicplayer.interfaces.PlayerInterface
 
 import com.example.musicplayer.models.MusicFile
 
