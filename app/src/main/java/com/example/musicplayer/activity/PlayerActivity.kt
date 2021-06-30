@@ -27,6 +27,7 @@ import androidx.core.app.NotificationCompat
 import com.bumptech.glide.Glide
 import com.example.musicplayer.AppController
 import com.example.musicplayer.AppController.Companion.channelId
+import com.example.musicplayer.MainActivity
 import com.example.musicplayer.MainActivity.Companion.getThumbnail
 import com.example.musicplayer.R
 import com.example.musicplayer.interfaces.PlayerInterface
@@ -41,8 +42,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class PlayerActivity : AppCompatActivity(), PlayerInterface, ServiceConnection {
-
-    private val TAG = "PlayerActivity"
 
     //    var mediaPlayer: MediaPlayer? = null
     lateinit var musicService: MusicService
@@ -64,7 +63,7 @@ class PlayerActivity : AppCompatActivity(), PlayerInterface, ServiceConnection {
     }
 
     private fun bindService() {
-        var intent = Intent(this, MusicService::class.java)
+        val intent = Intent(this, MusicService::class.java)
         bindService(intent, this, BIND_AUTO_CREATE)
     }
 
@@ -101,23 +100,30 @@ class PlayerActivity : AppCompatActivity(), PlayerInterface, ServiceConnection {
         favourite_iv.setOnClickListener {
             favUnfavSong()
         }
+        home_iv.setOnClickListener {
+            goToHome()
+        }
     }
 
-
+    private fun goToHome(){
+        val intent = Intent(this , MainActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        startActivity(intent)
+    }
 
     private fun setRepeat() {
         if (isRepeat) {
-            repeat_iv.setColorFilter(resources.getColor(R.color.bay_of_many), PorterDuff.Mode.SRC_IN);
+            repeat_iv.setColorFilter(resources.getColor(R.color.bay_of_many), PorterDuff.Mode.SRC_IN)
         } else {
-            repeat_iv.setColorFilter(resources.getColor(R.color.white), PorterDuff.Mode.SRC_IN);
+            repeat_iv.setColorFilter(resources.getColor(R.color.white), PorterDuff.Mode.SRC_IN)
         }
     }
 
     private fun setShuffle() {
         if (isShuffle) {
-            shuffle_iv.setColorFilter(resources.getColor(R.color.bay_of_many), PorterDuff.Mode.SRC_IN);
+            shuffle_iv.setColorFilter(resources.getColor(R.color.bay_of_many), PorterDuff.Mode.SRC_IN)
         } else {
-            shuffle_iv.setColorFilter(resources.getColor(R.color.white), PorterDuff.Mode.SRC_IN);
+            shuffle_iv.setColorFilter(resources.getColor(R.color.white), PorterDuff.Mode.SRC_IN)
         }
     }
 
@@ -161,9 +167,9 @@ class PlayerActivity : AppCompatActivity(), PlayerInterface, ServiceConnection {
     }
 
     private fun blurImage() {
-        var bitmapImage = AppController.musicList.get(AppController.currentListIndex).thumbnail
+        val bitmapImage = AppController.musicList.get(AppController.currentListIndex).thumbnail
         if (bitmapImage != null) {
-            imageAnimation(this, music_poster, bitmapImage!!)
+            imageAnimation(this, music_poster, bitmapImage)
             blur_image.setImageBitmap(bitmapImage)
         } else {
             music_poster.setImageResource(R.drawable.ic_launcher_music)
@@ -181,11 +187,11 @@ class PlayerActivity : AppCompatActivity(), PlayerInterface, ServiceConnection {
     private fun playMusic() {
         isPlaying = true
         music_play_pause_iv.setImageDrawable(resources.getDrawable(R.drawable.ic_pause))
-        var path = Uri.parse(AppController.musicList.get(AppController.currentListIndex).data)
+        val path = Uri.parse(AppController.musicList.get(AppController.currentListIndex).data)
         if (musicService.mediaPlayer != null) {
             musicService.mediaPlayer?.stop()
             musicService.mediaPlayer?.release()
-            musicService.mediaPlayer = null;
+            musicService.mediaPlayer = null
             musicService.mediaPlayer = MediaPlayer.create(this, path)
             musicService.mediaPlayer?.start()
         } else {
@@ -268,7 +274,7 @@ class PlayerActivity : AppCompatActivity(), PlayerInterface, ServiceConnection {
 
     private fun stopMusic() {
         if (musicService.mediaPlayer != null) {
-            musicService.mediaPlayer?.stop();
+            musicService.mediaPlayer?.stop()
             musicService.mediaPlayer?.release()
         }
     }
@@ -281,8 +287,8 @@ class PlayerActivity : AppCompatActivity(), PlayerInterface, ServiceConnection {
 
     fun imageAnimation(context: Context, imageView: ImageView, bitmap: Bitmap) {
 
-        var animOut = AnimationUtils.loadAnimation(context, android.R.anim.fade_out)
-        var animIn = AnimationUtils.loadAnimation(context, android.R.anim.fade_in)
+        val animOut = AnimationUtils.loadAnimation(context, android.R.anim.fade_out)
+        val animIn = AnimationUtils.loadAnimation(context, android.R.anim.fade_in)
 
         animOut.setAnimationListener(object : Animation.AnimationListener {
             override fun onAnimationStart(animation: Animation?) {
@@ -319,30 +325,30 @@ class PlayerActivity : AppCompatActivity(), PlayerInterface, ServiceConnection {
 
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            var notificationChannel = NotificationChannel(channelId, AppController.channelName, NotificationManager.IMPORTANCE_HIGH)
+            val notificationChannel = NotificationChannel(channelId, AppController.channelName, NotificationManager.IMPORTANCE_HIGH)
             notificationChannel.description = "this channel is used to play music in background"
 
-            var notificationManager = getSystemService(NotificationManager::class.java)
+            val notificationManager = getSystemService(NotificationManager::class.java)
             notificationManager.createNotificationChannel(notificationChannel)
         }
     }
 
     private fun favUnfavSong() {
-        var songId = AppController.musicList.get(AppController.currentListIndex).id
+        val songId = AppController.musicList.get(AppController.currentListIndex).id
         if (isFavourite) {
             FavSongDatabase.getInstance(baseContext).songDao().delete(FavSongModel(songId = songId , id = favouriteSongId))
             favourite_iv.setImageResource(R.drawable.ic_favourite_outline)
-            Toast.makeText(this , "removed from favourite" , Toast.LENGTH_SHORT)
+            Toast.makeText(this , "removed from favourite" , Toast.LENGTH_SHORT).show()
         }else {
             FavSongDatabase.getInstance(baseContext).songDao().insert(FavSongModel(songId = songId , id = 0))
             favourite_iv.setImageResource(R.drawable.ic_favourite)
-            Toast.makeText(this , "added to favourite" , Toast.LENGTH_SHORT)
+            Toast.makeText(this , "added to favourite" , Toast.LENGTH_SHORT).show()
         }
     }
 
     private fun checkIfFavourite() {
-        var database = FavSongDatabase.getInstance(baseContext)
-        var list = database.songDao().getAll()
+        val database = FavSongDatabase.getInstance(baseContext)
+        val list = database.songDao().getAll()
         isFavourite = checkForCurrentSong(list)
         if (isFavourite) {
             favourite_iv.setImageResource(R.drawable.ic_favourite)
@@ -353,7 +359,7 @@ class PlayerActivity : AppCompatActivity(), PlayerInterface, ServiceConnection {
 
     private fun checkForCurrentSong(list: List<FavSongModel>): Boolean {
         var isFound = false;
-        var currentId = AppController.musicList.get(AppController.currentListIndex).id
+        val currentId = AppController.musicList.get(AppController.currentListIndex).id
         list.forEach {
             if (it.songId == currentId) {
                 isFound = true
@@ -367,23 +373,23 @@ class PlayerActivity : AppCompatActivity(), PlayerInterface, ServiceConnection {
 
         createNotificationChannel()
 
-        var intent = Intent(this, PlayerActivity::class.java)
-        var contentIntent = PendingIntent.getActivity(this, 0, intent, 0)
+        val intent = Intent(this, PlayerActivity::class.java)
+        val contentIntent = PendingIntent.getActivity(this, 0, intent, 0)
 
-        var prevIntent = Intent(this, NotificationReceiver::class.java).setAction(AppController.ACTION_PREVIOUS)
-        var prevPending = PendingIntent.getBroadcast(this, 0, prevIntent, 0)
+        val prevIntent = Intent(this, NotificationReceiver::class.java).setAction(AppController.ACTION_PREVIOUS)
+        val prevPending = PendingIntent.getBroadcast(this, 0, prevIntent, 0)
 
-        var playPauseIntent = Intent(this, NotificationReceiver::class.java).setAction(AppController.ACTION_PLAY_PAUSE)
-        var playPausePending = PendingIntent.getBroadcast(this, 0, playPauseIntent, 0)
+        val playPauseIntent = Intent(this, NotificationReceiver::class.java).setAction(AppController.ACTION_PLAY_PAUSE)
+        val playPausePending = PendingIntent.getBroadcast(this, 0, playPauseIntent, 0)
 
-        var nextIntent = Intent(this, NotificationReceiver::class.java).setAction(AppController.ACTION_NEXT)
-        var nextPending = PendingIntent.getBroadcast(this, 0, nextIntent, 0)
+        val nextIntent = Intent(this, NotificationReceiver::class.java).setAction(AppController.ACTION_NEXT)
+        val nextPending = PendingIntent.getBroadcast(this, 0, nextIntent, 0)
 
         var picture = getThumbnail(AppController.musicList.get(AppController.currentListIndex).data!!)
         if (picture == null)
             picture = BitmapFactory.decodeResource(resources, R.drawable.ic_launcher_music)
 
-        var notificaiton = NotificationCompat.Builder(this, channelId)
+        val notificaiton = NotificationCompat.Builder(this, channelId)
             .setSmallIcon(playPauseImage)
             .setLargeIcon(picture)
             .setContentTitle(AppController.musicList.get(AppController.currentListIndex).title!!)
@@ -396,13 +402,13 @@ class PlayerActivity : AppCompatActivity(), PlayerInterface, ServiceConnection {
             .setOnlyAlertOnce(true)
             .build()
 
-        var notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+        val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.notify(0, notificaiton)
     }
 
 
     override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
-        var binder: MusicService.MyBinder = service as MusicService.MyBinder
+        val binder: MusicService.MyBinder = service as MusicService.MyBinder
         musicService = binder.getService()
         musicService.setPlayerInterface(this)
         initialize()

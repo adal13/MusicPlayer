@@ -40,7 +40,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun initTabs() {
 
-        var fragmentList = listOf(HomeFragment(), AlbumFragment(), FavouriteFragment())
+        var fragmentList = listOf(HomeFragment(), FavouriteFragment())
         supportFragmentManager.beginTransaction().replace(R.id.framelayout, fragmentList[0]).commit()
         bottom_bar.setOnTabSelectListener(object : AnimatedBottomBar.OnTabSelectListener {
             override fun onTabSelected(
@@ -111,7 +111,7 @@ class MainActivity : AppCompatActivity() {
                 musicList.add(musicFile)
             }
             AppController.musicList = musicList
-            AppController.setMusicListForHome()
+            AppController.setBackUpList()
         } else {
             println("cursor is null")
         }

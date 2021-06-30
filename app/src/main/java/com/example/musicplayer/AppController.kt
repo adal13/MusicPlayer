@@ -30,8 +30,12 @@ class AppController : Application() {
             currentListIndex = randomNumber
         }
 
-        fun setMusicListForHome() {
+        fun setBackUpList() {
             backUpList = musicList
+        }
+
+        fun setMusicListForHome() {
+            musicList = backUpList
         }
 
         fun setMusicForFavourite(tempList: ArrayList<MusicFile>) {
