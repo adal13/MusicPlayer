@@ -1,4 +1,4 @@
-package com.example.musicplayer.interfaces
+package com.builders.musicplayer.interfaces
 
 interface PlayerInterface {
 

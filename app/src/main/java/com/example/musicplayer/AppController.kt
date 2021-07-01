@@ -1,11 +1,11 @@
-package com.example.musicplayer
+package com.builders.musicplayer
 
 import android.app.Application
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.os.Build
-import com.example.musicplayer.models.MusicFile
+import com.builders.musicplayer.models.MusicFile
 
 class AppController : Application() {
 

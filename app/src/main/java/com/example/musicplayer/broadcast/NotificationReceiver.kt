@@ -1,9 +1,9 @@
-package com.example.musicplayer.broadcast
+package com.builders.musicplayer.broadcast
 
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import com.example.musicplayer.services.MusicService
+import com.builders.musicplayer.services.MusicService
 
 class NotificationReceiver : BroadcastReceiver() {
 

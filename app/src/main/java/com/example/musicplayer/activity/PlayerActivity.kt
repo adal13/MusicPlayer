@@ -1,4 +1,4 @@
-package com.example.musicplayer.activity
+package com.builders.musicplayer.activity
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -25,16 +25,16 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationCompat
 import com.bumptech.glide.Glide
-import com.example.musicplayer.AppController
-import com.example.musicplayer.AppController.Companion.channelId
-import com.example.musicplayer.MainActivity
-import com.example.musicplayer.MainActivity.Companion.getThumbnail
-import com.example.musicplayer.R
-import com.example.musicplayer.interfaces.PlayerInterface
-import com.example.musicplayer.broadcast.NotificationReceiver
-import com.example.musicplayer.database.FavSongDatabase
-import com.example.musicplayer.database.FavSongModel
-import com.example.musicplayer.services.MusicService
+import com.builders.musicplayer.AppController
+import com.builders.musicplayer.AppController.Companion.channelId
+import com.builders.musicplayer.MainActivity
+import com.builders.musicplayer.MainActivity.Companion.getThumbnail
+import com.builders.musicplayer.R
+import com.builders.musicplayer.interfaces.PlayerInterface
+import com.builders.musicplayer.broadcast.NotificationReceiver
+import com.builders.musicplayer.database.FavSongDatabase
+import com.builders.musicplayer.database.FavSongModel
+import com.builders.musicplayer.services.MusicService
 import kotlinx.android.synthetic.main.activity_player.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope

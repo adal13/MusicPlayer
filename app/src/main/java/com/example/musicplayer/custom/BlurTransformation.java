@@ -1,4 +1,4 @@
-package com.example.musicplayer.custom;
+package com.builders.musicplayer.custom;
 
 import android.content.Context;
 import android.graphics.Bitmap;

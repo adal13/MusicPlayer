@@ -1,4 +1,4 @@
-package com.example.musicplayer.fragmnets
+package com.builders.musicplayer.fragmnets
 
 import android.os.Bundle
 import android.util.Log
@@ -7,12 +7,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.musicplayer.AppController
-import com.example.musicplayer.R
-import com.example.musicplayer.adapters.MusicAdapter
-import com.example.musicplayer.database.FavSongDatabase
-import com.example.musicplayer.database.FavSongModel
-import com.example.musicplayer.models.MusicFile
+import com.builders.musicplayer.AppController
+import com.builders.musicplayer.R
+import com.builders.musicplayer.adapters.MusicAdapter
+import com.builders.musicplayer.database.FavSongDatabase
+import com.builders.musicplayer.database.FavSongModel
+import com.builders.musicplayer.models.MusicFile
 import kotlinx.android.synthetic.main.fragment_home.*
 
 

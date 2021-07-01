@@ -1,4 +1,4 @@
-package com.example.musicplayer
+package com.builders.musicplayer
 
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
@@ -9,10 +9,10 @@ import android.os.Bundle
 import android.provider.MediaStore
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.example.musicplayer.fragmnets.AlbumFragment
-import com.example.musicplayer.fragmnets.FavouriteFragment
-import com.example.musicplayer.fragmnets.HomeFragment
-import com.example.musicplayer.models.MusicFile
+import com.builders.musicplayer.fragmnets.AlbumFragment
+import com.builders.musicplayer.fragmnets.FavouriteFragment
+import com.builders.musicplayer.fragmnets.HomeFragment
+import com.builders.musicplayer.models.MusicFile
 import kotlinx.android.synthetic.main.activity_main.*
 import nl.joery.animatedbottombar.AnimatedBottomBar
 

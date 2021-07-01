@@ -1,4 +1,4 @@
-package com.example.musicplayer.fragmnets
+package com.builders.musicplayer.fragmnets
 
 import android.os.Bundle
 import android.util.Log
@@ -8,9 +8,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.musicplayer.AppController
-import com.example.musicplayer.R
-import com.example.musicplayer.adapters.MusicAdapter
+import com.builders.musicplayer.AppController
+import com.builders.musicplayer.R
+import com.builders.musicplayer.adapters.MusicAdapter
 import kotlinx.android.synthetic.main.fragment_home.*
 
 class HomeFragment : Fragment() {

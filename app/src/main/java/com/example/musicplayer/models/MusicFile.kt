@@ -1,4 +1,4 @@
-package com.example.musicplayer.models
+package com.builders.musicplayer.models
 
 import android.graphics.Bitmap
 

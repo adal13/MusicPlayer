@@ -1,4 +1,4 @@
-package com.example.musicplayer.database
+package com.builders.musicplayer.database
 
 import android.content.Context
 import androidx.room.Database
